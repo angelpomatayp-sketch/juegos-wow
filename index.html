@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Juegos WOW</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0a0a0a;
+      color: #fff;
+      font-family: 'Segoe UI', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    h1 {
+      font-size: 3rem;
+      letter-spacing: 6px;
+      text-transform: uppercase;
+      color: #FFD700;
+      text-shadow: 0 0 20px #FFD70088;
+      margin-bottom: 0.5rem;
+    }
+    .subtitle { color: #888; margin-bottom: 3rem; font-size: 1rem; letter-spacing: 2px; }
+    .games-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 2rem;
+      max-width: 900px;
+      width: 90%;
+    }
+    .game-card {
+      background: #111;
+      border: 2px solid #222;
+      border-radius: 16px;
+      padding: 2rem;
+      text-align: center;
+      text-decoration: none;
+      color: #fff;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+    .game-card:hover {
+      border-color: #FFD700;
+      transform: translateY(-6px);
+      box-shadow: 0 10px 40px #FFD70033;
+    }
+    .game-card .icon { font-size: 4rem; margin-bottom: 1rem; display: block; }
+    .game-card h2 { font-size: 1.4rem; margin-bottom: 0.5rem; }
+    .game-card p { color: #888; font-size: 0.85rem; }
+    .badge {
+      display: inline-block;
+      background: #FFD700;
+      color: #000;
+      font-size: 0.65rem;
+      font-weight: bold;
+      padding: 2px 8px;
+      border-radius: 20px;
+      margin-top: 0.5rem;
+      letter-spacing: 1px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Juegos WOW</h1>
+  <p class="subtitle">Selecciona un juego</p>
+  <div class="games-grid">
+    <a class="game-card" href="pacman/index.html">
+      <span class="icon">🟡</span>
+      <h2>Pac-Man</h2>
+      <p>El clásico arcade de los 80s. Come puntos, huye de los fantasmas.</p>
+      <span class="badge">DISPONIBLE</span>
+    </a>
+    <!-- Más juegos se agregarán aquí -->
+  </div>
+</body>
+</html>

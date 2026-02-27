@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PAC-MAN WOW</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Fondo animado: rombos WOW flotantes -->
+  <div class="bg-particles" aria-hidden="true">
+    <span class="rombo r1"></span>
+    <span class="rombo r2"></span>
+    <span class="rombo r3"></span>
+    <span class="rombo r4"></span>
+    <span class="rombo r5"></span>
+    <span class="rombo r6"></span>
+    <span class="rombo r7"></span>
+    <span class="rombo r8"></span>
+  </div>
+
+  <!-- ══ PANTALLA DE INICIO ══ -->
+  <div id="screen-start" class="screen active">
+
+    <!-- Logo WOW Technologies -->
+    <div class="wow-brand">
+      <svg class="wow-diamond" viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg" aria-label="WOW Technologies">
+        <path d="M25 2 L48 25 L25 48 L2 25 Z" fill="#FFB800"/>
+        <path d="M25 12 L38 25 L25 38 L12 25 Z" fill="#040404"/>
+      </svg>
+      <div class="wow-brand-text">
+        <span class="wow-brand-main">WOW Technologies</span>
+        <span class="wow-brand-sub">S.A.C.</span>
+      </div>
+    </div>
+
+    <div class="neon-divider"></div>
+
+    <!-- Pac-Man + título -->
+    <div class="logo-wrap">
+      <div class="pacman-logo"></div>
+      <h1>PAC-MAN<span class="wow-highlight">WOW</span></h1>
+    </div>
+
+    <!-- Fantasmas -->
+    <div class="ghost-row">
+      <div class="ghost-preview blinky"></div>
+      <div class="ghost-preview pinky"></div>
+      <div class="ghost-preview inky"></div>
+      <div class="ghost-preview clyde"></div>
+    </div>
+    <div class="ghost-names">
+      <span>BLINKY</span><span>PINKY</span><span>INKY</span><span>CLYDE</span>
+    </div>
+
+    <div class="high-score-display">HI-SCORE: <span id="hi-score-start">0</span></div>
+
+    <button id="btn-start" class="btn-main">INICIAR JUEGO</button>
+
+    <div class="controls-hint">
+      <span>&#8592;&#8593;&#8595;&#8594; / WASD — Mover</span>
+      <span>P — Pausar</span>
+    </div>
+
+    <a href="../index.html" class="back-link">&#8592; Volver al menú</a>
+  </div>
+
+  <!-- ══ PANTALLA DEL JUEGO ══ -->
+  <div id="screen-game" class="screen">
+
+    <div id="hud">
+      <!-- Mini-logo WOW en HUD -->
+      <div class="hud-brand">
+        <svg class="hud-diamond" viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M25 2 L48 25 L25 48 L2 25 Z" fill="#FFB800"/>
+          <path d="M25 12 L38 25 L25 38 L12 25 Z" fill="#040404"/>
+        </svg>
+        <span class="hud-brand-text">WOW</span>
+      </div>
+      <div class="hud-item">
+        <span class="hud-label">PUNTOS</span>
+        <span id="hud-score">0</span>
+      </div>
+      <div class="hud-item">
+        <span class="hud-label">NIVEL</span>
+        <span id="hud-level">1</span>
+      </div>
+      <div class="hud-item">
+        <span class="hud-label">HI-SCORE</span>
+        <span id="hud-hiscore">0</span>
+      </div>
+    </div>
+
+    <div id="canvas-wrap">
+      <canvas id="game-canvas"></canvas>
+      <div id="overlay" class="hidden">
+        <div id="overlay-text"></div>
+        <div id="overlay-sub"></div>
+      </div>
+    </div>
+
+    <div id="lives-row">
+      <span class="hud-label">VIDAS:</span>
+      <div id="lives-icons"></div>
+      <span class="hud-label" style="margin-left:auto">P = PAUSA</span>
+    </div>
+
+  </div>
+
+  <!-- ══ PANTALLA GAME OVER ══ -->
+  <div id="screen-gameover" class="screen">
+
+    <!-- Mini-brand -->
+    <div class="wow-brand gameover-brand">
+      <svg class="wow-diamond" viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M25 2 L48 25 L25 48 L2 25 Z" fill="#FFB800"/>
+        <path d="M25 12 L38 25 L25 38 L12 25 Z" fill="#040404"/>
+      </svg>
+      <span class="wow-brand-main">WOW Technologies</span>
+    </div>
+
+    <h2>GAME OVER</h2>
+
+    <div class="final-score-wrap">
+      <div>PUNTUACIÓN FINAL</div>
+      <div id="final-score" class="big-score">0</div>
+      <div id="new-record" class="hidden new-record-msg">¡NUEVO RÉCORD!</div>
+    </div>
+
+    <button id="btn-restart" class="btn-main">JUGAR DE NUEVO</button>
+    <button id="btn-menu" class="btn-secondary">MENÚ PRINCIPAL</button>
+  </div>
+
+  <script src="audio.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
