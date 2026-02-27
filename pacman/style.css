@@ -372,13 +372,19 @@ body {
   border-top: 1px solid rgba(255,184,0,0.12);
   background: rgba(0,0,0,0.6);
 }
-#lives-icons { display: flex; gap: 6px; }
+#lives-icons { display: flex; gap: 8px; align-items: center; }
 .life-icon {
-  width: 20px; height: 20px;
+  width: 24px; height: 24px;
   background: var(--amber);
   border-radius: 50%;
-  clip-path: polygon(0 0, 100% 15%, 100% 85%, 0 100%);
-  box-shadow: 0 0 8px var(--amber-glow);
+  clip-path: polygon(0 0, 100% 28%, 100% 72%, 0 100%);
+  box-shadow: 0 0 10px var(--amber-glow);
+  animation: chomp-life 0.45s steps(2) infinite;
+}
+@keyframes chomp-life {
+  0%   { clip-path: polygon(0 0,   100% 28%, 100% 72%, 0 100%); }
+  50%  { clip-path: polygon(0 28%, 100% 50%, 100% 50%, 0 72%); }
+  100% { clip-path: polygon(0 0,   100% 28%, 100% 72%, 0 100%); }
 }
 
 /* ══════════ GAME OVER ══════════ */
