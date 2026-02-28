@@ -433,3 +433,99 @@ body {
   text-shadow: 0 0 10px rgba(0,230,118,0.6);
 }
 .hidden { display: none !important; }
+
+/* ══════════ D-PAD MÓVIL ══════════ */
+#dpad {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 0.4rem 0 0.3rem;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.dpad-row {
+  display: flex;
+  gap: 3px;
+  align-items: center;
+}
+.dpad-btn {
+  width: 58px; height: 58px;
+  background: rgba(255,184,0,0.12);
+  border: 2px solid rgba(255,184,0,0.35);
+  color: var(--amber);
+  font-size: 1.3rem;
+  line-height: 1;
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transition: background 0.1s;
+}
+.dpad-btn:active { background: rgba(255,184,0,0.38); }
+.dpad-center { width: 58px; height: 58px; }
+
+/* Mostrar D-pad solo en pantallas táctiles */
+@media (pointer: coarse) {
+  #dpad { display: flex; }
+}
+
+/* ══════════ RESPONSIVE MÓVIL ══════════ */
+#screen-game {
+  justify-content: flex-start;
+  padding: 0;
+  overflow: hidden;
+  height: 100dvh;
+  min-height: unset;
+}
+
+@media (max-width: 680px) {
+  #hud {
+    padding: 0.3rem 0.6rem;
+    margin-bottom: 0.2rem;
+  }
+  .hud-label { font-size: 0.38rem; letter-spacing: 0; }
+  #hud-score, #hud-level, #hud-hiscore {
+    font-size: 0.85rem;
+    min-width: 40px;
+  }
+  .hud-diamond { width: 16px; height: 16px; }
+  .hud-brand-text { font-size: 0.42rem; }
+  #lives-row { padding: 0.25rem 0.6rem; }
+  .life-icon { width: 20px; height: 20px; }
+  .hud-label[style] { display: none; } /* oculta "P = PAUSA" en móvil */
+  .dpad-btn { width: 52px; height: 52px; font-size: 1.1rem; }
+  .dpad-center { width: 52px; height: 52px; }
+}
+
+@media (max-height: 480px) {
+  /* Landscape en teléfonos pequeños */
+  #hud { padding: 0.15rem 0.5rem; }
+  .hud-label { font-size: 0.34rem; }
+  #hud-score, #hud-level, #hud-hiscore { font-size: 0.7rem; }
+  #lives-row { padding: 0.15rem 0.5rem; }
+  .dpad-btn { width: 46px; height: 46px; font-size: 1rem; }
+  .dpad-center { width: 46px; height: 46px; }
+}
+
+/* Pantalla de inicio: scroll si no cabe todo */
+#screen-start {
+  overflow-y: auto;
+  padding: 1.5rem 1rem;
+}
+@media (max-width: 480px) {
+  .pacman-logo { width: 48px; height: 48px; }
+  .logo-wrap h1 { font-size: clamp(1.3rem, 6vw, 2rem); }
+  .ghost-row { gap: 1.2rem; }
+  .ghost-preview { width: 36px; height: 36px; border-radius: 18px 18px 0 0; }
+  .ghost-names { gap: 0.7rem; font-size: 0.45rem; }
+  .ghost-names span { width: 36px; }
+  .btn-main { padding: 0.8rem 1.8rem; font-size: 0.75rem; }
+  .high-score-display { font-size: 0.65rem; margin-bottom: 1.2rem; }
+  .neon-divider { margin-bottom: 1rem; }
+  .controls-hint { display: none; }
+  .wow-diamond { width: 36px; height: 36px; }
+}

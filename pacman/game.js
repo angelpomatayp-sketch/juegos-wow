@@ -151,14 +151,19 @@ let offscreenCtx = null;
 let offscreenLevel = -1; // nivel del mapa en cache
 
 function resizeCanvas() {
-  const maxH = window.innerHeight * 0.78;
-  const scale = Math.floor(Math.min(maxH / (ROWS * TILE), (window.innerWidth * 0.95) / (COLS * TILE)));
-  const s = Math.max(scale, 1);
+  const hud    = document.getElementById('hud');
+  const livRow = document.getElementById('lives-row');
+  const dpad   = document.getElementById('dpad');
+  const hudH   = (hud    ? hud.offsetHeight    : 48) + 2;
+  const livH   = (livRow ? livRow.offsetHeight : 38) + 2;
+  const dpadH  = (dpad && dpad.offsetHeight > 0 ? dpad.offsetHeight : 0) + 4;
+  const maxH   = window.innerHeight - hudH - livH - dpadH;
+  const maxW   = window.innerWidth;
+  const s      = Math.max(Math.min(maxH / (ROWS * TILE), maxW / (COLS * TILE)), 0.2);
   canvas.width  = COLS * TILE;
   canvas.height = ROWS * TILE;
-  canvas.style.width  = (COLS * TILE * s) + 'px';
-  canvas.style.height = (ROWS * TILE * s) + 'px';
-  // Invalidar cache cuando cambia el tamaño
+  canvas.style.width  = Math.round(COLS * TILE * s) + 'px';
+  canvas.style.height = Math.round(ROWS * TILE * s) + 'px';
   offscreenLevel = -1;
 }
 resizeCanvas();
@@ -1161,6 +1166,22 @@ canvas.addEventListener('touchend', e => {
   }
   touchStart = null;
 }, { passive: true });
+
+// D-pad para móvil
+(function setupDpad() {
+  const map = {
+    'dpad-up':    { dc:  0, dr: -1 },
+    'dpad-down':  { dc:  0, dr:  1 },
+    'dpad-left':  { dc: -1, dr:  0 },
+    'dpad-right': { dc:  1, dr:  0 },
+  };
+  Object.entries(map).forEach(([id, dir]) => {
+    const btn = document.getElementById(id);
+    if (!btn) return;
+    btn.addEventListener('touchstart', e => { e.preventDefault(); pacman.next = dir; }, { passive: false });
+    btn.addEventListener('mousedown',  () => { pacman.next = dir; });
+  });
+})();
 
 // ─── PANTALLAS ───────────────────────────────────────────────
 function showScreen(id) {
