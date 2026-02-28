@@ -153,11 +153,9 @@ let offscreenLevel = -1; // nivel del mapa en cache
 function resizeCanvas() {
   const hud    = document.getElementById('hud');
   const livRow = document.getElementById('lives-row');
-  const dpad   = document.getElementById('dpad');
   const hudH   = (hud    ? hud.offsetHeight    : 48) + 2;
   const livH   = (livRow ? livRow.offsetHeight : 38) + 2;
-  const dpadH  = (dpad && dpad.offsetHeight > 0 ? dpad.offsetHeight : 0) + 4;
-  const maxH   = window.innerHeight - hudH - livH - dpadH;
+  const maxH   = window.innerHeight - hudH - livH;
   const maxW   = window.innerWidth;
   const s      = Math.max(Math.min(maxH / (ROWS * TILE), maxW / (COLS * TILE)), 0.2);
   canvas.width  = COLS * TILE;

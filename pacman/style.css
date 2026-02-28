@@ -435,39 +435,47 @@ body {
 }
 .hidden { display: none !important; }
 
-/* ══════════ D-PAD MÓVIL ══════════ */
+/* ══════════ D-PAD MÓVIL (overlay flotante) ══════════ */
 #dpad {
   display: none;
   flex-direction: column;
   align-items: center;
-  gap: 3px;
-  padding: 0.4rem 0 0.3rem;
+  gap: 4px;
+  position: fixed;
+  bottom: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
   user-select: none;
   -webkit-user-select: none;
 }
 .dpad-row {
   display: flex;
-  gap: 3px;
+  gap: 4px;
   align-items: center;
 }
 .dpad-btn {
-  width: 58px; height: 58px;
-  background: rgba(255,184,0,0.12);
-  border: 2px solid rgba(255,184,0,0.35);
+  width: 62px; height: 62px;
+  background: rgba(4,4,4,0.72);
+  border: 2px solid rgba(255,184,0,0.5);
   color: var(--amber);
-  font-size: 1.3rem;
+  font-size: 1.4rem;
   line-height: 1;
-  border-radius: 10px;
+  border-radius: 12px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
-  transition: background 0.1s;
+  transition: background 0.1s, border-color 0.1s;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.6);
 }
-.dpad-btn:active { background: rgba(255,184,0,0.38); }
-.dpad-center { width: 58px; height: 58px; }
+.dpad-btn:active {
+  background: rgba(255,184,0,0.3);
+  border-color: var(--amber);
+}
+.dpad-center { width: 62px; height: 62px; }
 
 /* Mostrar D-pad solo en pantallas táctiles */
 @media (pointer: coarse) {
@@ -498,8 +506,6 @@ body {
   #lives-row { padding: 0.25rem 0.6rem; }
   .life-icon { width: 20px; height: 20px; }
   .hud-label[style] { display: none; } /* oculta "P = PAUSA" en móvil */
-  .dpad-btn { width: 52px; height: 52px; font-size: 1.1rem; }
-  .dpad-center { width: 52px; height: 52px; }
 }
 
 @media (max-height: 480px) {
@@ -508,8 +514,10 @@ body {
   .hud-label { font-size: 0.34rem; }
   #hud-score, #hud-level, #hud-hiscore { font-size: 0.7rem; }
   #lives-row { padding: 0.15rem 0.5rem; }
-  .dpad-btn { width: 46px; height: 46px; font-size: 1rem; }
-  .dpad-center { width: 46px; height: 46px; }
+  /* D-pad más pequeño en landscape */
+  .dpad-btn { width: 50px; height: 50px; font-size: 1.2rem; }
+  .dpad-center { width: 50px; height: 50px; }
+  #dpad { bottom: 10px; gap: 3px; }
 }
 
 /* Pantalla de inicio: scrollable en portrait */
