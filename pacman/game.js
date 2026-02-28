@@ -116,6 +116,9 @@ const MAP_WOW = [
   [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
 ];
 
+// MAP_BASE: misma estructura que MAP_WOW pero sin dots (se generan al azar en initMap)
+const MAP_BASE = MAP_WOW.map(row => row.map(t => (t === T.DOT ? T.EMPTY : t)));
+
 // Array de mapas (ahora solo 1 - WOW Edition)
 const ALL_MAPS = [MAP_WOW];
 
@@ -170,28 +173,70 @@ window.addEventListener('resize', resizeCanvas);
 // ─── MAPA ───────────────────────────────────────────────────
 // ─── SISTEMA DE PROGRESIÓN GRADUAL WOW ─────────────────────
 function getDifficultyForLevel(lvl) {
-  // Progresión gradual hasta nivel 20 (después mantiene máximos)
   return {
-    // Velocidad Pac-Man: +3% por nivel, máx 160% (nivel 20)
-    pacmanSpeed: Math.min(PACMAN_SPD * (1 + lvl * 0.03), PACMAN_SPD * 1.6),
-    
-    // Velocidad fantasmas: +4% por nivel, máx 180% (nivel 20)
-    ghostSpeed: Math.min(GHOST_SPD * (1 + lvl * 0.04), GHOST_SPD * 1.8),
-    
-    // Duración frightened: -5% por nivel, mín 3 segundos
-    frightDuration: Math.max(FRIGHT_DUR * (1 - lvl * 0.05), 3000),
-    
-    // Duración scatter: -10% por nivel, mín 0 (nivel 10+)
-    scatterDuration: Math.max(SCATTER_DUR * (1 - lvl * 0.10), 0),
-    
-    // Tiempo salida fantasmas: -5% por nivel, mín 1 segundo
-    releaseDelay: Math.max(3000 * (1 - lvl * 0.05), 1000)
+    // Velocidad Pac-Man: +3% por nivel, máx 160%
+    pacmanSpeed:    Math.min(PACMAN_SPD * (1 + lvl * 0.03), PACMAN_SPD * 1.6),
+    // Velocidad fantasmas: +4% por nivel, máx 180%
+    ghostSpeed:     Math.min(GHOST_SPD  * (1 + lvl * 0.04), GHOST_SPD  * 1.8),
+    // Duración frightened: -5% por nivel, mín 2.5s
+    frightDuration: Math.max(FRIGHT_DUR * (1 - lvl * 0.05), 2500),
+    // Duración scatter: -10% por nivel, 0 desde nivel 10
+    scatterDuration:Math.max(SCATTER_DUR * (1 - lvl * 0.10), 0),
+    // Retraso salida fantasmas: -5% por nivel, mín 0.8s
+    releaseDelay:   Math.max(3000 * (1 - lvl * 0.05), 800),
+
+    // NUEVO — tiles que Blinky predice por delante de Pac-Man (nivel 3+, máx 6)
+    blinkyLookAhead: Math.min(Math.max(0, lvl - 2), 6),
+
+    // NUEVO — probabilidad de que el fantasma asustado HUYA (nivel 5+, aumenta hasta 100%)
+    frightenedFlee: lvl >= 5 ? Math.min((lvl - 5) * 0.12, 1.0) : 0,
+
+    // NUEVO — Inky y Clyde persiguen directo como Blinky (nivel 10+)
+    aggressiveAll: lvl >= 10,
   };
 }
 
-function initMap() {
-  // WOW Edition: Siempre el mismo mapa (MAP_WOW)
-  map = MAP_WOW.map(row => [...row]);
+function initMap(lvl) {
+  lvl = lvl || 1;
+  // Partir del mapa base sin dots
+  map = MAP_BASE.map(row => [...row]);
+
+  // Recolectar posiciones candidatas para dots y power pellets del mapa original
+  const dotCandidates = [];
+  const powerPositions = [];
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      if (MAP_WOW[r][c] === T.DOT)   dotCandidates.push([r, c]);
+      if (MAP_WOW[r][c] === T.POWER) powerPositions.push([r, c]);
+    }
+  }
+
+  // Los 4 power pellets siempre se colocan (esquinas fijas)
+  powerPositions.forEach(([r, c]) => { map[r][c] = T.POWER; });
+
+  // Densidad de dots según nivel: 90% → 35% (nivel 1 al 15+)
+  const density = Math.max(0.35, 0.90 - (lvl - 1) * 0.037);
+
+  // PRNG pseudo-aleatoria con semilla por nivel (determinista: mismo nivel = mismo mapa)
+  let seed = lvl * 1664525 + 1013904223;
+  function seededRandom() {
+    seed = (Math.imul(seed, 1664525) + 1013904223) | 0;
+    return ((seed >>> 0) & 0x7fffffff) / 0x7fffffff;
+  }
+
+  // Fisher-Yates shuffle con semilla
+  const shuffled = [...dotCandidates];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(seededRandom() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+
+  // Tomar density% de los dots (mínimo 40 para que el nivel no sea trivial)
+  const take = Math.max(Math.floor(shuffled.length * density), 40);
+  for (let i = 0; i < Math.min(take, shuffled.length); i++) {
+    const [r, c] = shuffled[i];
+    map[r][c] = T.DOT;
+  }
 }
 
 function isWall(col, row) {
@@ -435,17 +480,26 @@ function ghostTarget(g) {
   const bc = pixelToTile(ghosts[0].x);
   const br = pixelToTile(ghosts[0].y);
 
+  const diff = getDifficultyForLevel(level);
+
   switch (g.idx) {
-    case 0: // Blinky: persigue directamente
-      return { tc: pc, tr: pr };
-    case 1: // Pinky: 4 tiles adelante de Pac-Man
+    case 0: { // Blinky: predice tiles adelante según nivel (nivel 3+ más agresivo)
+      const look = diff.blinkyLookAhead;
+      if (look === 0) return { tc: pc, tr: pr };
+      return { tc: wrapCol(pc + p.dir.dc * look), tr: Math.max(0, Math.min(ROWS - 1, pr + p.dir.dr * look)) };
+    }
+    case 1: // Pinky: 4 tiles adelante de Pac-Man (siempre)
       return { tc: wrapCol(pc + p.dir.dc * 4), tr: Math.max(0, Math.min(ROWS - 1, pr + p.dir.dr * 4)) };
-    case 2: // Inky: vector Blinky → 2 tiles adelante de Pac * 2
-      { const tx = wrapCol(pc + p.dir.dc * 2); const ty = pr + p.dir.dr * 2;
-        return { tc: wrapCol(tx + (tx - bc)), tr: Math.max(0, Math.min(ROWS - 1, ty + (ty - br))) }; }
-    case 3: // Clyde: persigue si lejos, scatter si cerca
-      { const d = dist(g.x, g.y, p.x, p.y) / TILE;
-        return d > 8 ? { tc: pc, tr: pr } : { tc: g.scatterCol, tr: g.scatterRow }; }
+    case 2: { // Inky: vector Blinky→Pac (nivel 10+ persigue directo como Blinky)
+      if (diff.aggressiveAll) return { tc: pc, tr: pr };
+      const tx = wrapCol(pc + p.dir.dc * 2); const ty = pr + p.dir.dr * 2;
+      return { tc: wrapCol(tx + (tx - bc)), tr: Math.max(0, Math.min(ROWS - 1, ty + (ty - br))) };
+    }
+    case 3: { // Clyde: huye si cerca (nivel 10+ persigue directo)
+      if (diff.aggressiveAll) return { tc: pc, tr: pr };
+      const d = dist(g.x, g.y, p.x, p.y) / TILE;
+      return d > 8 ? { tc: pc, tr: pr } : { tc: g.scatterCol, tr: g.scatterRow };
+    }
     default:
       return { tc: 13, tr: 15 };
   }
@@ -503,13 +557,28 @@ function updateGhost(g, dt, globalMode) {
       });
       
       if (valid.length) {
-        // 30% probabilidad de mantener dirección actual si es válida
-        const currentValid = valid.find(d => d.dc === g.dir.dc && d.dr === g.dir.dr);
-        if (currentValid && Math.random() < 0.3) {
-          g.dir = currentValid;
+        const flee = getDifficultyForLevel(level).frightenedFlee;
+        if (flee > 0 && Math.random() < flee) {
+          // Nivel 5+: huir de Pac-Man — elegir dirección que maximiza distancia
+          const pc = pixelToTile(pacman.x);
+          const pr = pixelToTile(pacman.y);
+          let bestDir = valid[0];
+          let bestDist = -1;
+          for (const d of valid) {
+            const nc = wrapCol(gc + d.dc);
+            const nr = gr + d.dr;
+            const dd = (nc - pc) * (nc - pc) + (nr - pr) * (nr - pr);
+            if (dd > bestDist) { bestDist = dd; bestDir = d; }
+          }
+          g.dir = bestDir;
         } else {
-          // Elegir aleatoriamente entre direcciones válidas
-          g.dir = valid[Math.floor(Math.random() * valid.length)];
+          // Movimiento aleatorio (niveles bajos o probabilidad residual)
+          const currentValid = valid.find(d => d.dc === g.dir.dc && d.dr === g.dir.dr);
+          if (currentValid && Math.random() < 0.3) {
+            g.dir = currentValid;
+          } else {
+            g.dir = valid[Math.floor(Math.random() * valid.length)];
+          }
         }
       }
     } else {
@@ -541,10 +610,11 @@ function moveGhostDir(g, dir, spd) {
 // ─── TEMAS POR NIVEL ────────────────────────────────────────
 // WOW Edition: Tema único Negro y Dorado
 const WOW_THEME = {
-  wall: '#000000',  // Negro sólido
-  glow: '#FFB800',  // Ámbar WOW Technologies
-  dot: '#FFB800',   // Ámbar WOW Technologies
-  bg: '#040404'     // Negro profundo
+  wall: '#FFB800',  // Ámbar WOW Technologies (paredes doradas)
+  wallBorder: '#000000', // Borde negro entre bloques
+  glow: '#FFB800',
+  dot: '#FFB800',
+  bg: '#040404'     // Negro profundo (camino oscuro)
 };
 
 function getTheme() {
@@ -571,9 +641,9 @@ function renderStaticMap() {
       if (t === T.WALL) {
         offscreenCtx.fillStyle = theme.wall;
         offscreenCtx.fillRect(x, y, TILE, TILE);
-        offscreenCtx.strokeStyle = theme.glow;
-        offscreenCtx.lineWidth = 1;
-        offscreenCtx.strokeRect(x + 0.5, y + 0.5, TILE - 1, TILE - 1);
+        offscreenCtx.strokeStyle = theme.wallBorder;
+        offscreenCtx.lineWidth = 1.5;
+        offscreenCtx.strokeRect(x + 0.75, y + 0.75, TILE - 1.5, TILE - 1.5);
       } else if (t === T.GATE) {
         offscreenCtx.fillStyle = '#FFB8FF';
         offscreenCtx.fillRect(x + 2, y + TILE / 2 - 1, TILE - 4, 2);
@@ -1020,7 +1090,7 @@ function nextLevel() {
   SFX.levelUp();
   showOverlay('NIVEL ' + level, '¡Completado!');
   setTimeout(() => {
-    initMap();
+    initMap(level);
     countDots();
     pacman = createPacman();
     ghosts = GHOST_DEFS.map((d, i) => createGhost(d, i));
@@ -1198,7 +1268,7 @@ function startGame() {
   modeIdx = 0;
   globalMode = MODE_SEQUENCE[0].mode;
   modeTimer  = MODE_SEQUENCE[0].dur;
-  initMap();
+  initMap(1);
   countDots();
   pacman = createPacman();
   ghosts = GHOST_DEFS.map((d, i) => createGhost(d, i));
