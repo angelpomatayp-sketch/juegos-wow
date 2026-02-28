@@ -1186,6 +1186,8 @@ function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   document.body.style.overflow = (id === 'screen-game') ? 'hidden' : '';
+  // Recalcular canvas cuando la pantalla ya tiene dimensiones reales
+  if (id === 'screen-game') requestAnimationFrame(resizeCanvas);
 }
 
 function startGame() {
