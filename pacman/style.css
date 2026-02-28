@@ -19,7 +19,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
   position: relative;
 }
 
@@ -511,11 +512,16 @@ body {
   .dpad-center { width: 46px; height: 46px; }
 }
 
-/* Pantalla de inicio: scroll si no cabe todo */
+/* Pantalla de inicio: scrollable en portrait */
 #screen-start {
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 1.5rem 1rem;
+  min-height: 100dvh;
+  box-sizing: border-box;
 }
+
+/* Portrait pequeño */
 @media (max-width: 480px) {
   .pacman-logo { width: 48px; height: 48px; }
   .logo-wrap h1 { font-size: clamp(1.3rem, 6vw, 2rem); }
@@ -528,4 +534,31 @@ body {
   .neon-divider { margin-bottom: 1rem; }
   .controls-hint { display: none; }
   .wow-diamond { width: 36px; height: 36px; }
+}
+
+/* Landscape móvil: todo compacto para caber en ~360px de alto */
+@media (max-height: 500px) {
+  #screen-start {
+    padding: 0.4rem 1rem;
+    justify-content: center;
+    gap: 0;
+    min-height: 100dvh;
+  }
+  .wow-brand { margin-bottom: 0.3rem; }
+  .wow-diamond { width: 28px; height: 28px; }
+  .wow-brand-main { font-size: 0.6rem; }
+  .wow-brand-sub { font-size: 0.38rem; }
+  .neon-divider { margin-bottom: 0.5rem; }
+  .logo-wrap { margin-bottom: 0.6rem; gap: 0.8rem; }
+  .logo-wrap h1 { font-size: 1.4rem; }
+  .pacman-logo { width: 44px; height: 44px; }
+  .ghost-row { gap: 1rem; margin-bottom: 0.2rem; }
+  .ghost-preview { width: 32px; height: 32px; border-radius: 16px 16px 0 0; }
+  .ghost-preview::before { top: 7px; left: 4px; width: 8px; height: 8px; box-shadow: 12px 0 0 #fff; }
+  .ghost-names { gap: 0.6rem; font-size: 0.38rem; margin-bottom: 0.6rem; }
+  .ghost-names span { width: 32px; }
+  .high-score-display { font-size: 0.6rem; margin-bottom: 0.6rem; letter-spacing: 2px; }
+  .btn-main { padding: 0.65rem 2rem; font-size: 0.7rem; margin-bottom: 0.5rem; }
+  .controls-hint { display: none; }
+  .back-link { font-size: 0.48rem; margin-top: 0.2rem; }
 }
