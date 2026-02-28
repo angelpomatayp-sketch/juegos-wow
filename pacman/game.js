@@ -1187,6 +1187,7 @@ canvas.addEventListener('touchend', e => {
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
+  document.body.style.overflow = (id === 'screen-game') ? 'hidden' : '';
 }
 
 function startGame() {
